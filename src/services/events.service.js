@@ -1,7 +1,14 @@
 import { createEvent } from "../models/event.model.js";
 import { config } from "../config/index.js";
 import { toZonedTime, fromZonedTime } from "date-fns-tz";
-import { addDays, addWeeks, isSameDay, startOfWeek } from "date-fns";
+import {
+  addDays,
+  addWeeks,
+  isSameDay,
+  isSameMonth,
+  isSameWeek,
+  startOfWeek,
+} from "date-fns";
 
 export class EventsService {
   constructor(repository) {
@@ -83,7 +90,7 @@ export class EventsService {
 
     const startOfNextWeek = startOfWeek(
       addWeeks(nowZoned, 1),
-      { weekStartsOn: 1 } // понедельник
+      { weekStartsOn: 1 }, // понедельник
     );
     const endOfNextWeek = addWeeks(startOfNextWeek, 1);
 
@@ -94,11 +101,48 @@ export class EventsService {
       }))
       .filter(
         ({ zonedDate }) =>
-          zonedDate >= startOfNextWeek && zonedDate < endOfNextWeek
+          zonedDate >= startOfNextWeek && zonedDate < endOfNextWeek,
       )
       .sort((a, b) => a.zonedDate - b.zonedDate)
       .map(({ event }) => event);
   }
+
+  async getEventsForThisWeek() {
+    const data = await this.repository.load();
+    const events = data.events || [];
+
+    const nowZoned = toZonedTime(new Date(), config.timeZone);
+    const startOfThisWeek = startOfWeek(
+      nowZoned,
+      { weekStartsOn: 1 }, // понедельник
+    );
+
+    return events
+      .map((event) => ({
+        event,
+        zonedDate: toZonedTime(new Date(event.eventDate), config.timeZone),
+      }))
+      .filter(({ zonedDate }) => isSameWeek(zonedDate, startOfThisWeek))
+      .sort((a, b) => a.zonedDate - b.zonedDate)
+      .map(({ event }) => event);
+  }
+
+  async getEventsForThisMonth() {
+    const data = await this.repository.load();
+    const events = data.events || [];
+
+    const nowZoned = toZonedTime(new Date(), config.timeZone);
+
+    return events
+      .map((event) => ({
+        event,
+        zonedDate: toZonedTime(new Date(event.eventDate), config.timeZone),
+      }))
+      .filter(({ zonedDate }) => isSameMonth(zonedDate, nowZoned))
+      .sort((a, b) => a.zonedDate - b.zonedDate)
+      .map(({ event }) => event);
+  }
+
   async getEventsForToday() {
     const data = await this.repository.load();
     const events = data.events || [];

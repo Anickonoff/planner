@@ -17,7 +17,8 @@ const HELP_TEXT = `
 /status — показать ближайшее событие
 /today — события на сегодня
 /tomorrow — события на завтра
-/week — показать события на следующую неделю
+/week — показать события на эту неделю
+/nextweek - показать события на следующую неделю
 /delete <id> — запросить удаление события
 /confirm <id> — подтвердить удаление
 /cancel — отменить удаление
@@ -122,7 +123,7 @@ export class TelegramPolling {
 
           const dateText = formatDateForUser(
             status.nextEvent.eventDate,
-            config.timeZone
+            config.timeZone,
           );
 
           await telegramRequest(this.token, "sendMessage", {
@@ -165,13 +166,14 @@ export class TelegramPolling {
 
           await telegramRequest(this.token, "sendMessage", {
             chat_id: chatId,
+            parse_mode: "Markdown",
             text:
               `⚠️ Подтверждение удаления\n\n` +
               `Событие:\n` +
               `${event.title}\n` +
               `${dateText}\n\n` +
               `Подтвердите командой:\n` +
-              `/confirm ${eventId}\n` +
+              `/confirm \`${eventId}\`\n` +
               `(действительно 5 минут)`,
           });
 
@@ -229,7 +231,7 @@ export class TelegramPolling {
 
           const dateText = formatDateForUser(
             deleted.eventDate,
-            config.timeZone
+            config.timeZone,
           );
 
           await telegramRequest(this.token, "sendMessage", {
@@ -244,7 +246,7 @@ export class TelegramPolling {
         if (text === "/cancel") {
           const removed = await clearPendingDeletesForChat(
             this.dataFile,
-            chatId
+            chatId,
           );
 
           if (removed === 0) {
@@ -263,7 +265,7 @@ export class TelegramPolling {
           continue;
         }
 
-        if (text === "/week") {
+        if (text === "/nextweek") {
           const events = await this.eventsService.getEventsForNextWeek();
 
           if (events.length === 0) {
@@ -277,14 +279,75 @@ export class TelegramPolling {
           const lines = events.map((event) => {
             const dateText = formatDateForUser(
               event.eventDate,
-              config.timeZone
+              config.timeZone,
             );
-            return `• ${dateText} — ${event.title}\n id: ${event.id}`;
+            return `• ${dateText} — ${event.title}\n id: \`${event.id}\``;
           });
 
           await telegramRequest(this.token, "sendMessage", {
             chat_id: chatId,
+            parse_mode: "Markdown",
             text: `📅 События на следующую неделю\n\n` + lines.join("\n"),
+          });
+
+          continue;
+        }
+
+        if (text === "/week") {
+          const events = await this.eventsService.getEventsForThisWeek();
+
+          if (events.length === 0) {
+            await telegramRequest(this.token, "sendMessage", {
+              chat_id: chatId,
+              text: `📅 События на этой неделе\n\n` + `Событий нет`,
+            });
+            continue;
+          }
+
+          const lines = events.map((event) => {
+            const dateText = formatDateForUser(
+              event.eventDate,
+              config.timeZone,
+            );
+            return `• ${dateText} — ${event.title}\n id: \`${event.id}\``;
+          });
+
+          await telegramRequest(this.token, "sendMessage", {
+            chat_id: chatId,
+            parse_mode: "Markdown",
+            text:
+              `📅 События на этой неделе (прошедшие и будущие)\n\n` +
+              lines.join("\n"),
+          });
+
+          continue;
+        }
+
+        if (text === "/month") {
+          const events = await this.eventsService.getEventsForThisMonth();
+
+          if (events.length === 0) {
+            await telegramRequest(this.token, "sendMessage", {
+              chat_id: chatId,
+              text: `📅 События в этом месяце\n\n` + `Событий нет`,
+            });
+            continue;
+          }
+
+          const lines = events.map((event) => {
+            const dateText = formatDateForUser(
+              event.eventDate,
+              config.timeZone,
+            );
+            return `• ${dateText} — ${event.title}\n id: \`${event.id}\``;
+          });
+
+          await telegramRequest(this.token, "sendMessage", {
+            chat_id: chatId,
+            parse_mode: "Markdown",
+            text:
+              `📅 События в этом месяце (прошедшие и будущие)\n\n` +
+              lines.join("\n"),
           });
 
           continue;
@@ -304,13 +367,14 @@ export class TelegramPolling {
           const lines = events.map((event) => {
             const dateText = formatDateForUser(
               event.eventDate,
-              config.timeZone
+              config.timeZone,
             );
-            return `• ${dateText} — ${event.title}\n id:${event.id}`;
+            return `• ${dateText} — ${event.title}\n id: \`${event.id}\``;
           });
 
           await telegramRequest(this.token, "sendMessage", {
             chat_id: chatId,
+            parse_mode: "Markdown",
             text: `📅 События на сегодня\n\n${lines.join("\n")}`,
           });
 
@@ -331,13 +395,14 @@ export class TelegramPolling {
           const lines = events.map((event) => {
             const dateText = formatDateForUser(
               event.eventDate,
-              config.timeZone
+              config.timeZone,
             );
-            return `• ${dateText} — ${event.title}\n id:${event.id}`;
+            return `• ${dateText} — ${event.title}\n id: \`${event.id}\``;
           });
 
           await telegramRequest(this.token, "sendMessage", {
             chat_id: chatId,
+            parse_mode: "Markdown",
             text: `📅 События на завтра\n\n${lines.join("\n")}`,
           });
 
