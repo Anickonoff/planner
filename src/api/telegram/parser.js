@@ -8,10 +8,10 @@ export function parseTelegramMessage(text) {
 
   // Формат: ДД.ММ [ЧЧ:ММ] Название [Описание]
   const parts = text.trim().split(/\s+/);
-  const dateMatch = parts[0]?.match(/^(\d{2})\.(\d{2})$/);
+  const dateMatch = parts[0]?.match(/^(\d{1,2})\.(\d{1,2})$/);
 
   if (!dateMatch) {
-    return { error: "Неверный формат даты. Используй ДД.ММ" };
+    return { error: "Неверный формат даты. Используй Д[Д].М[М]" };
   }
 
   const day = Number(dateMatch[1]);
