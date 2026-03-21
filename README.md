@@ -59,6 +59,7 @@ Telegram-планировщик задач для группового чата 
 
 ```
 12.01 Работа
+1.2 Работа
 12.01 8:30 Работа
 15.01 18:30 Встреча с командой
 ```
@@ -67,6 +68,13 @@ Telegram-планировщик задач для группового чата 
 
 - `8:30`
 - `08:30`
+
+Дата может быть указана как с ведущими нулями, так и без них:
+
+- `1.2`
+- `01.02`
+- `7.1`
+- `07.01`
 
 ---
 
@@ -143,6 +151,97 @@ LOG_DIR=./logs
 ```bash
 npm start
 ```
+
+---
+
+## Установка и запуск с Docker
+
+### Требования
+
+- Docker
+- Docker Compose
+
+---
+
+### 1. Подготовьте `.env`
+
+Создайте файл `.env` в корне проекта:
+
+```env
+PORT=3000
+DATA_FILE_PATH=./data/events.json
+
+TG_BOT_TOKEN=xxxxxxxxxxxxxxxx
+TELEGRAM_ALLOWED_CHAT_ID=-1001234567890
+
+APP_TIMEZONE=Asia/Tomsk
+APP_LOCALE=ru-RU
+
+LOG_DIR=./logs
+```
+
+> `TELEGRAM_ALLOWED_CHAT_ID` — ID группового чата, где боту разрешено работать.
+
+---
+
+### 2. Создайте директории для данных и логов
+
+Linux / macOS:
+
+```bash
+mkdir -p data logs
+```
+
+Windows PowerShell:
+
+```powershell
+New-Item -ItemType Directory -Force data, logs
+```
+
+---
+
+### 3. Сборка и запуск
+
+```bash
+docker compose up -d --build
+```
+
+После запуска сервис будет доступен по адресам:
+
+- `http://localhost:3000/health`
+- `http://localhost:3000/ready`
+- `http://localhost:3000/metrics`
+
+---
+
+### 4. Просмотр логов
+
+```bash
+docker compose logs -f planner
+```
+
+---
+
+### 5. Остановка
+
+```bash
+docker compose down
+```
+
+---
+
+## Хранение данных в Docker
+
+В `docker-compose.yaml` подключены volume:
+
+- `./data:/app/data`
+- `./logs:/app/logs`
+
+Это означает:
+
+- события и служебные данные сохраняются в `data/events.json`;
+- логи сохраняются в директории `logs/`;
+- данные не теряются при перезапуске контейнера.
 
 ---
 
