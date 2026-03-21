@@ -2,4 +2,7 @@ node_modules/
 .vscode/
 .env
 *.log
-*.json
+
+# игнорим только данные
+data/*.json
+data/backups/*.json
