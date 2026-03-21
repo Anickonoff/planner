@@ -215,6 +215,14 @@ export class EventsService {
         event.description = patch.description;
       }
 
+      if (patch.hasTime !== undefined) {
+        event.hasTime = patch.hasTime;
+      }
+
+      if (patch.completed !== undefined) {
+        event.completed = patch.completed;
+      }
+
       updated = event;
     });
 

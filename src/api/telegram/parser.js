@@ -20,11 +20,13 @@ export function parseTelegramMessage(text) {
   let cursor = 1;
   let hours = 0;
   let minutes = 0;
+  let hasTime = false;
 
   const timeMatch = parts[cursor]?.match(/^(\d{1,2}):(\d{2})$/);
   if (timeMatch) {
     hours = Number(timeMatch[1]);
     minutes = Number(timeMatch[2]);
+    hasTime = true;
 
     if (hours > 23 || minutes > 59) {
       return { error: "Неверное время" };
@@ -48,5 +50,6 @@ export function parseTelegramMessage(text) {
     eventDate: utcDate.toISOString(),
     title,
     description,
+    hasTime,
   };
 }

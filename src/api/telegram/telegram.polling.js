@@ -4,7 +4,7 @@ import { metrics } from "../../utils/metrics.js";
 import fs from "fs/promises";
 import { EventsService } from "../../services/events.service.js";
 import { EventsRepository } from "../../repositories/events.repository.js";
-import { formatDateForUser } from "../../utils/date.js";
+import { formatEventDateForUser } from "../../utils/date.js";
 import { config } from "../../config/index.js";
 import { logger } from "../../utils/logger.js";
 import { handleTelegramCommand } from "./telegram.commands.js";
@@ -90,7 +90,7 @@ export class TelegramPolling {
           continue;
         }
 
-        const dateText = formatDateForUser(event.eventDate, config.timeZone);
+        const dateText = formatEventDateForUser(event, config.timeZone);
         await telegramRequest(this.token, "sendMessage", {
           chat_id: chatId,
           text: `📌 Событие создано\n\n` + `${event.title}\n` + `${dateText}`,

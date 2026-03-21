@@ -1,7 +1,7 @@
 import cron from "node-cron";
 import fs from "fs/promises";
 import { telegramRequest } from "../api/telegram/telegram.client.js";
-import { formatDateForUser } from "../utils/date.js";
+import { formatEventDateForUser } from "../utils/date.js";
 import { config } from "../config/index.js";
 import { toZonedTime } from "date-fns-tz";
 import { isSameDay, addDays, format, startOfWeek, addWeeks } from "date-fns";
@@ -72,7 +72,7 @@ export class RemindersJob {
         continue;
       }
 
-      const dateText = formatDateForUser(event.eventDate, config.timeZone);
+      const dateText = formatEventDateForUser(event, config.timeZone);
 
       await this.send(
         event.chatId,
@@ -126,7 +126,7 @@ export class RemindersJob {
       "📅 События на следующую неделю:\n\n" +
       weekEvents
         .map(({ event }) => {
-          const dateText = formatDateForUser(event.eventDate, config.timeZone);
+          const dateText = formatEventDateForUser(event, config.timeZone);
           return `• ${dateText} — ${event.title}\n id: ${event.id}`;
         })
         .join("\n");

@@ -1,5 +1,5 @@
 import { telegramRequest } from "./telegram.client.js";
-import { formatDateForUser } from "../../utils/date.js";
+import { formatEventDateForUser } from "../../utils/date.js";
 import { config } from "../../config/index.js";
 import {
   clearPendingDelete,
@@ -72,10 +72,7 @@ export async function handleTelegramCommand({
       return true;
     }
 
-    const dateText = formatDateForUser(
-      status.nextEvent.eventDate,
-      config.timeZone,
-    );
+    const dateText = formatEventDateForUser(status.nextEvent, config.timeZone);
 
     await telegramRequest(token, "sendMessage", {
       chat_id: chatId,
@@ -113,7 +110,7 @@ export async function handleTelegramCommand({
 
     await createPendingDelete(dataFile, eventId, chatId);
 
-    const dateText = formatDateForUser(event.eventDate, config.timeZone);
+    const dateText = formatEventDateForUser(event, config.timeZone);
 
     await telegramRequest(token, "sendMessage", {
       chat_id: chatId,
@@ -180,7 +177,7 @@ export async function handleTelegramCommand({
       return true;
     }
 
-    const dateText = formatDateForUser(deleted.eventDate, config.timeZone);
+    const dateText = formatEventDateForUser(deleted, config.timeZone);
 
     await telegramRequest(token, "sendMessage", {
       chat_id: chatId,
@@ -219,7 +216,7 @@ export async function handleTelegramCommand({
       return true;
     }
     const lines = events.map((event) => {
-      const dateText = formatDateForUser(event.eventDate, config.timeZone);
+      const dateText = formatEventDateForUser(event, config.timeZone);
       return `• ${dateText} — ${event.title}\n id: \`${event.id}\``;
     });
     await telegramRequest(token, "sendMessage", {
@@ -242,7 +239,7 @@ export async function handleTelegramCommand({
     }
 
     const lines = events.map((event) => {
-      const dateText = formatDateForUser(event.eventDate, config.timeZone);
+      const dateText = formatEventDateForUser(event, config.timeZone);
       return `• ${dateText} — ${event.title}\n id: \`${event.id}\``;
     });
 
@@ -267,7 +264,7 @@ export async function handleTelegramCommand({
     }
 
     const lines = events.map((event) => {
-      const dateText = formatDateForUser(event.eventDate, config.timeZone);
+      const dateText = formatEventDateForUser(event, config.timeZone);
       return `• ${dateText} — ${event.title}\n id: \`${event.id}\``;
     });
 
@@ -293,7 +290,7 @@ export async function handleTelegramCommand({
     }
 
     const lines = events.map((event) => {
-      const dateText = formatDateForUser(event.eventDate, config.timeZone);
+      const dateText = formatEventDateForUser(event, config.timeZone);
       return `• ${dateText} — ${event.title}\n id: \`${event.id}\``;
     });
 
@@ -318,7 +315,7 @@ export async function handleTelegramCommand({
     }
 
     const lines = events.map((event) => {
-      const dateText = formatDateForUser(event.eventDate, config.timeZone);
+      const dateText = formatEventDateForUser(event, config.timeZone);
       return `• ${dateText} — ${event.title}\n id: \`${event.id}\``;
     });
 
