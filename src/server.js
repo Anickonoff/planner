@@ -18,7 +18,25 @@ let reminders;
 const eventsRepository = new EventsRepository(config.dataFile);
 const eventsService = new EventsService(eventsRepository);
 
+function maskProxyUrl(value) {
+  if (!value) return null;
 
+  try {
+    const url = new URL(value);
+
+    if (url.username) {
+      url.username = "***";
+    }
+
+    if (url.password) {
+      url.password = "***";
+    }
+
+    return url.toString();
+  } catch {
+    return "[invalid proxy url]";
+  }
+}
 
 app.get("/health", (_, res) => res.status(200).json({ status: "ok" }));
 
@@ -41,6 +59,11 @@ const server = app.listen(config.port, async () => {
   logger.info("Service started");
 
   if (config.telegram.token) {
+    logger.info("Telegram proxy configuration", {
+      enabled: Boolean(config.telegram.proxyUrl),
+      proxyUrl: maskProxyUrl(config.telegram.proxyUrl),
+    });
+
     try {
       reminders = new RemindersJob({
         dataFile: config.dataFile,

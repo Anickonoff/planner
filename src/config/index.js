@@ -9,5 +9,6 @@ export const config = {
     allowedChatId: process.env.TELEGRAM_ALLOWED_CHAT_ID
       ? Number(process.env.TELEGRAM_ALLOWED_CHAT_ID)
       : null,
+    proxyUrl: process.env.TG_PROXY_URL || null,
   },
 };
