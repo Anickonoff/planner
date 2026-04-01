@@ -8,9 +8,10 @@ import { isSameDay, addDays, format, startOfWeek, addWeeks } from "date-fns";
 import { wasReminderSent, markReminderSent } from "../utils/reminderDedup.js";
 
 export class RemindersJob {
-  constructor({ dataFile, telegramToken }) {
+  constructor({ dataFile, telegramToken, eventsService }) {
     this.dataFile = dataFile;
     this.telegramToken = telegramToken;
+    this.eventsService = eventsService;
     this.tasks = [];
   }
 
@@ -27,6 +28,14 @@ export class RemindersJob {
   }
 
   start() {
+    if (this.eventsService) {
+      this.tasks.push(
+        cron.schedule("*/5 * * * *", async () => {
+          await this.eventsService.autoCompleteDueEvents();
+        })
+      );
+    }
+
     // Каждый день в 09:00 — напоминания на завтра
     this.tasks.push(
       cron.schedule("0 9 * * *", async () => {

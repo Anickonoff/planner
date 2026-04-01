@@ -7,6 +7,7 @@ import {
   isSameDay,
   isSameMonth,
   isSameWeek,
+  startOfDay,
   startOfWeek,
 } from "date-fns";
 
@@ -181,6 +182,34 @@ export class EventsService {
     return data.events;
   }
 
+  async autoCompleteDueEvents(now = new Date()) {
+    const nowZoned = toZonedTime(now, config.timeZone);
+    let updatedCount = 0;
+
+    await this.repository.save((store) => {
+      for (const event of store.events || []) {
+        if (event.status !== "planned") {
+          continue;
+        }
+
+        const eventZoned = toZonedTime(new Date(event.eventDate), config.timeZone);
+
+        const isDue = event.hasTime
+          ? eventZoned <= nowZoned
+          : startOfDay(addDays(eventZoned, 1)) <= nowZoned;
+
+        if (!isDue) {
+          continue;
+        }
+
+        event.status = "completed";
+        updatedCount += 1;
+      }
+    });
+
+    return updatedCount;
+  }
+
   async updateEvent(id, patch) {
     let updated = null;
 
@@ -219,8 +248,12 @@ export class EventsService {
         event.hasTime = patch.hasTime;
       }
 
-      if (patch.completed !== undefined) {
-        event.completed = patch.completed;
+      // if (patch.completed !== undefined) {
+      //   event.completed = patch.completed;
+      // }
+
+      if (patch.status !== undefined) {
+        event.status = patch.status;
       }
 
       updated = event;

@@ -1,6 +1,12 @@
 import { randomUUID } from "crypto";
 
-export function createEvent({ eventDate, title, description, chatId, hasTime = false }) {
+export function createEvent({
+  eventDate,
+  title,
+  description,
+  chatId,
+  hasTime = false,
+}) {
   return {
     id: randomUUID(),
     eventDate,
@@ -8,7 +14,7 @@ export function createEvent({ eventDate, title, description, chatId, hasTime = f
     description: description || "",
     chatId,
     hasTime,
-    completed: false,
+    // completed: false,
     createdAt: new Date().toISOString(),
     status: "planned",
   };

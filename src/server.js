@@ -68,6 +68,7 @@ const server = app.listen(config.port, async () => {
       reminders = new RemindersJob({
         dataFile: config.dataFile,
         telegramToken: config.telegram.token,
+        eventsService,
       });
       reminders.start();
 
