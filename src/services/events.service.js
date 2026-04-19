@@ -1,6 +1,6 @@
 import { createEvent } from "../models/event.model.js";
 import { config } from "../config/index.js";
-import { toZonedTime, fromZonedTime } from "date-fns-tz";
+import { toZonedTime } from "date-fns-tz";
 import {
   addDays,
   addWeeks,
@@ -219,10 +219,8 @@ export class EventsService {
 
       // --- обработка даты ---
       if (patch.eventDate) {
-        const localDate = new Date(patch.eventDate);
-
-        // интерпретируем как локальное время приложения
-        const utcDate = fromZonedTime(localDate, config.timeZone);
+        // frontend уже присылает UTC ISO-строку, поэтому повторно не переводим
+        const utcDate = new Date(patch.eventDate);
 
         // валидация: нельзя в прошлом
         const nowZoned = toZonedTime(new Date(), config.timeZone);
